@@ -140,6 +140,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "manager.user"
 
+AUTHENTICATION_BACKENDS = [
+    'common.backends.EmailAdminAuthBackend',  # Para login con email en el admin
+    'django.contrib.auth.backends.ModelBackend',  # El backend por defecto
+]
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "modules.authentication.authentication.JWTAuthentication",
