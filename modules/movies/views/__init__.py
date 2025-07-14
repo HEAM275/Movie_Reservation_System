@@ -1,0 +1,1 @@
+from modules.movies.views.actors import ActorViewSet

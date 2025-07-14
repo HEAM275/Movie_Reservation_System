@@ -21,6 +21,7 @@ class Actor(AuditableMixins):
     biography = models.TextField(blank=True, verbose_name=_('Biography'))
     birth_date = models.DateField(
         null=True, blank=True, verbose_name=_('Birth Date'))
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = _('Actor')
