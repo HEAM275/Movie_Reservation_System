@@ -12,6 +12,7 @@ from modules.movies.serializers.movie_category import (
     MovieCategoryCreateSerializer,
     MovieCategoryUpdateSerializer
 )
+from modules.movies.filters.movie_category import MovieCategoryFilter
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi as oa
@@ -29,6 +30,7 @@ class MovieCategoryViewSet(ModelViewSet):
     queryset = MovieCategory.objects.filter(is_active=True)
     permission_classes = [IsAuthenticated]
     serializer_class = MovieCategoryListSerializer
+    filterset_class = MovieCategoryFilter
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:

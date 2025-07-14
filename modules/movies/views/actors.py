@@ -12,6 +12,7 @@ from modules.movies.serializers.actors import (
     ActorCreateSerializer,
     ActorUpdateSerializer
 )
+from modules.movies.filters.actors import ActorFilter
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi as oa
@@ -31,6 +32,7 @@ class ActorViewSet(ModelViewSet):
     queryset = Actor.objects.filter(is_active=True)
     serializer_class = ActorListSerializer
     permission_classes = [IsAuthenticated]
+    filterset_class = ActorFilter
 
     def get_serializer_class(self):
         if self.action in ['create']:
