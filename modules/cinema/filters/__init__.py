@@ -1,0 +1,1 @@
+from modules.cinema.filters.cinema import CinemaFilter

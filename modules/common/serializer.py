@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 
-class AuditableSerializerMixin(serializers.Serializer):
+class AuditableSerializerMixin(serializers.ModelSerializer):
     created_date = serializers.DateTimeField(read_only=True)
     created_by = serializers.CharField(read_only=True)
     updated_date = serializers.DateTimeField(read_only=True)
