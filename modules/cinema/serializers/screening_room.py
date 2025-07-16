@@ -1,4 +1,5 @@
 from django.utils.translation import gettext_lazy as _
+from django.db.models import Sum
 from rest_framework import serializers
 from rest_framework.validators import ValidationError
 from modules.common.serializer import AuditableSerializerMixin
@@ -7,6 +8,8 @@ from modules.cinema.models.cinema import Cinema
 
 
 class ScreeningRoomListSerializer(AuditableSerializerMixin):
+
+    cinema = serializers.CharField(source='cinema.name')
     class Meta:
         model = ScreeningRoom
         fields = ['cinema',
@@ -66,7 +69,7 @@ class ScreeningRoomCreateSerializer(AuditableSerializerMixin):
         if cinema and capacity:
             # Suma de capacidades actuales de ese cine (sin incluir esta sala si es update)
             used_capacity = ScreeningRoom.objects.filter(cinema=cinema).exclude(pk=self.instance.pk if self.instance else None).aggregate(
-                total=serializers.Sum('capacity')
+                total=Sum('capacity')
             )['total'] or 0
 
             if used_capacity + capacity > cinema.total_seats:

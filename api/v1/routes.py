@@ -7,6 +7,7 @@ from modules.movies.views.movie_category import MovieCategoryViewSet
 from modules.movies.views.movie import MovieViewSet
 from modules.cinema.views.cinema import CinemaViewSet
 from modules.cinema.views.screening_room import ScreeningRoomViewSet
+from modules.services.views.showtime import ShowtimeViewSet
 
 router = routers.DefaultRouter()
 
@@ -16,5 +17,6 @@ router.register(r'movie-categories', MovieCategoryViewSet, basename='movie-categ
 router.register(r'movies', MovieViewSet, basename='movies')
 router.register(r'cinemas', CinemaViewSet, basename='cinemas')
 router.register(r'screening-rooms', ScreeningRoomViewSet, basename='screening-rooms')
+router.register(r'showtimes', ShowtimeViewSet, basename='showtimes')
 
 urlpatterns = router.urls

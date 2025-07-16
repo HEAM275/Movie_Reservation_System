@@ -46,6 +46,7 @@ LOCAL_APPS = [
     'modules.cinema',
     'modules.manager',
     'modules.movies',
+    'modules.services',
 ]
 
 THIR_APPS = [
