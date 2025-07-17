@@ -1,4 +1,6 @@
+from django.utils import timezone
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from modules.services.models.showtime import Showtime
 from modules.cinema.models.screening_room import ScreeningRoom
 from modules.movies.models.movies import Movie
@@ -8,7 +10,8 @@ from modules.common.serializer import AuditableSerializerMixin
 class ShowtimeListSerializer(AuditableSerializerMixin):
     movie = serializers.CharField(source = 'movie.title')
     screening_room = serializers.StringRelatedField()
-
+    available_seats = serializers.SerializerMethodField()
+    is_full = serializers.SerializerMethodField()
     class Meta:
         model = Showtime
         fields = [
@@ -48,18 +51,36 @@ class ShowtimeCreateSerializer(AuditableSerializerMixin):
         fields = ['movie', 'screening_room', 'show_date']
 
     def validate(self, data):
-        # Validar que la fecha no sea en el pasado
-        from django.utils import timezone
-        if data['show_date'] < timezone.now():
-            raise serializers.ValidationError({
-                'show_date': _('La fecha no puede ser en el pasado.')
-            })
 
-        # Validar que la sala pertenezca a un cine activo
-        if not data['screening_room'].cinema.is_active:
-            raise serializers.ValidationError({
-                'screening_room': _('El cine no está activo.')
-            })
+        # Validar que la fecha no sea en el pasado
+        show_date = data.get('show_date')
+        if show_date and show_date < timezone.now():
+            raise ValidationError({'show_date': _('La fecha no puede ser en el pasado.')})
+
+        # Validar que el cine esté activo
+        screening_room = data.get('screening_room')
+        if screening_room and not screening_room.cinema.is_active:
+            raise ValidationError({'screening_room': _('El cine no está activo.')})
+
+        # Validar que no haya otra función en la misma sala en las próximas 3 horas
+        if show_date and screening_room:
+            min_gap = show_date - timezone.timedelta(hours=3)
+            max_gap = show_date + timezone.timedelta(hours=3)
+
+            conflicting = Showtime.objects.filter(
+                screening_room=screening_room,
+                show_date__range=(min_gap, max_gap)
+            ).exclude(is_active=False)
+
+            if conflicting.exists():
+                suggested = (show_date + timezone.timedelta(hours=3)).isoformat()
+                raise ValidationError({
+                    'show_date': _(
+                        'Ya hay una función programada cerca de esta hora. '
+                        'Por favor, programa tu función al menos 3 horas después. '
+                        'Sugerencia: %(suggested)s'
+                    ) % {'suggested': suggested}
+                })
 
         return data
     
@@ -79,16 +100,36 @@ class ShowtimeUpdateSerializer(AuditableSerializerMixin):
         fields = ['movie', 'screening_room', 'show_date']
 
     def validate(self, data):
-        from django.utils import timezone
 
-        if 'show_date' in data and data['show_date'] < timezone.now():
-            raise serializers.ValidationError({
-                'show_date': _('La fecha no puede ser en el pasado.')
-            })
+        show_date = data.get('show_date')
+        screening_room = data.get('screening_room')
 
-        if 'screening_room' in data and not data['screening_room'].cinema.is_active:
-            raise serializers.ValidationError({
-                'screening_room': _('El cine no está activo.')
-            })
+        # Validar que la fecha no sea en el pasado
+        if show_date and show_date < timezone.now():
+            raise ValidationError({'show_date': _('La fecha no puede ser en el pasado.')})
+
+        # Validar que el cine esté activo
+        if screening_room and not screening_room.cinema.is_active:
+            raise ValidationError({'screening_room': _('El cine no está activo.')})
+
+        # Validar que no haya otra función en la misma sala en las próximas 3 horas
+        if show_date and screening_room:
+            min_gap = show_date - timezone.timedelta(hours=3)
+            max_gap = show_date + timezone.timedelta(hours=3)
+
+            conflicting = Showtime.objects.filter(
+                screening_room=screening_room,
+                show_date__range=(min_gap, max_gap)
+            ).exclude(pk=self.instance.pk if self.instance else None)
+
+            if conflicting.exists():
+                suggested = (show_date + timezone.timedelta(hours=3)).isoformat()
+                raise ValidationError({
+                    'show_date': _(
+                        'Ya hay una función programada cerca de esta hora. '
+                        'Por favor, programa tu función al menos 3 horas después. '
+                        'Sugerencia: %(suggested)s'
+                    ) % {'suggested': suggested}
+                })
 
         return data

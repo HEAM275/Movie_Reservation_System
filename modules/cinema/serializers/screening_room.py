@@ -12,7 +12,7 @@ class ScreeningRoomListSerializer(AuditableSerializerMixin):
     cinema = serializers.CharField(source='cinema.name')
     class Meta:
         model = ScreeningRoom
-        fields = ['cinema',
+        fields = ['id','cinema',
                 'room_number',
                 'capacity']
         

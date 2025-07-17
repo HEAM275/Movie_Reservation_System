@@ -8,6 +8,8 @@ from modules.movies.views.movie import MovieViewSet
 from modules.cinema.views.cinema import CinemaViewSet
 from modules.cinema.views.screening_room import ScreeningRoomViewSet
 from modules.services.views.showtime import ShowtimeViewSet
+from modules.services.views.reservation import ReservationViewSet
+from modules.services.views.map import SeatMapView
 
 router = routers.DefaultRouter()
 
@@ -18,5 +20,7 @@ router.register(r'movies', MovieViewSet, basename='movies')
 router.register(r'cinemas', CinemaViewSet, basename='cinemas')
 router.register(r'screening-rooms', ScreeningRoomViewSet, basename='screening-rooms')
 router.register(r'showtimes', ShowtimeViewSet, basename='showtimes')
+router.register( r'reservations', ReservationViewSet, basename='reservations')
 
-urlpatterns = router.urls
+
+urlpatterns = router.urls + [ path('map/', SeatMapView.as_view(), name='map')]

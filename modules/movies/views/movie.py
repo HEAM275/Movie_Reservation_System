@@ -33,6 +33,7 @@ class MovieViewSet(ModelViewSet):
     serializer_class = MovieListSerializer
     permission_classes = [IsAuthenticated]
     filterset_class = MovieFilter
+    ordering_fields = ['id', 'title', 'release_date', 'genre', 'director']
     lookup_field = 'id'
 
     def get_serializer_class(self):

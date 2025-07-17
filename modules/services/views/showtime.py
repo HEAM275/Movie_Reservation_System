@@ -27,7 +27,7 @@ class ShowtimeViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows showtimes to be viewed or edited.
     """
-    queryset = Showtime.objects.all()
+    queryset = Showtime.objects.filter( is_active = True)
     serializer_class = ShowtimeListSerializer
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
